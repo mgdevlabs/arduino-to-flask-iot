@@ -18,3 +18,8 @@ def test_weather_endpoint_mock_data(client):
     data_store.update(temperature=23.4, humidity=32.1)
     response = client.get("/api/weather")
     assert response.get_json() == {"temperature": 23.4, "humidity": 32.1}
+
+def test_weather_endpoint_missing_data(client):
+    data_store.update(temperature=11.1)
+    response = client.get("/api/weather")
+    assert response.get_json() == {"temperature":11.1, "humidity": None}

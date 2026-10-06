@@ -82,7 +82,7 @@ def read_parameters():
         try:
             if ser is None:
                 port = detect_arduino()
-                serial = Serial(port.device, 9600, timeout=1)
+                ser = Serial(port.device, 9600, timeout=1)
                 time.sleep(2)
                 log.info("Successfully connected Arduino on %s", port.device)
             command = 'GET\n'
