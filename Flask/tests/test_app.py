@@ -2,11 +2,6 @@ import pytest
 from app import create_app
 from app.data_storage import data_store
 
-
-@pytest.fixture(autouse=True)
-def reset_data_store():
-    data_store.update(temperature=None, humidity=None)
-
 @pytest.fixture
 def client():
     app = create_app({"TESTING" : True, "START_COMM_THREAD" :  False})
