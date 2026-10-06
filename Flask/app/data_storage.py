@@ -66,47 +66,57 @@ def detect_arduino():
     # If no matching port has beed found, throw runtime error
     raise RuntimeError("No arduino port found")
 
+# connecting Arduino board that has been detected
+def connect():
+    port = detect_arduino()
+    ser = Serial(port.device, 9600, timeout=1)
+    time.sleep(2)
+    log.info("Arduino connectd on: %s", port.device)
+    return ser
+
+# parses line read from Arduino
+def parse_reading(line):
+    temperature, humidity = line.split(";")
+    return float(temperature), float(humidity)
+
+# one communication cycle
+def poll_once(ser):
+    ser.write(b"GET\n")
+    response = ser.readline().decode('utf-8', errors='ignore').strip()
+    if not response:
+        return
+    try:
+        temperature, humidity = parse_reading(response)
+    except ValueError:
+        log.warning("Wrong data format: %r", response)
+        return
+    data_store.update(temperature=temperature, humidity=humidity)
+
+# one cycle of communication and error handling loop
+def poll_step(ser):
+    try:
+        if ser is None:
+            ser = connect()
+        poll_once(ser)
+        return ser
+    except (RuntimeError, SerialException, OSError) as e:
+        # If Arduino has not been found or has been disconnected
+        log.warning("Arduino not found: %s", e)
+        data_store.update(temperature=None, humidity=None)
+        if ser is None:
+            try:
+                ser.close()
+            except Exception:
+                pass
+        return None
 
 
 # this function will be used by a separate thread to read data from the arduino
+# wrapper function for all the above
 def read_parameters():
-
-
-    # definition of a communication port with arduino
-    # port = detect_arduino()
-    global response
     ser = None
-    # ser = Serial(port.device, 9600, timeout=1)
-
     while(True):
-        try:
-            if ser is None:
-                port = detect_arduino()
-                ser = Serial(port.device, 9600, timeout=1)
-                time.sleep(2)
-                log.info("Successfully connected Arduino on %s", port.device)
-            command = 'GET\n'
-            ser.write(command.encode())
-            response =ser.readline().decode('utf-8', errors='ignore').strip()
-            if response:
-                readings = response.split(';')
-                data_store.update(temperature=readings[0], humidity=readings[1])
-
-        except (RuntimeError, SerialException, OSError) as e:
-            # If Arduino has not been found or has been disconnected
-            log.warning("Arduino not found: %s", e)
-            data_store.update(temperature=None, humidity=None)
-            if ser is None:
-                try:
-                    ser.close()
-                except Exception:
-                    pass
-                ser = None
-
-        except ValueError:
-            # Wrong format of returned data
-            log.warning("Malformed data: %r", response)
-
+        ser = poll_once(ser)
         time.sleep(RETRY_DELAY)
 
 # function that sets up the thread reading data from arduino
