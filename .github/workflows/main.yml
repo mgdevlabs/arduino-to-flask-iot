@@ -7,12 +7,16 @@ on:
 
 jobs:
   test:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: Flask
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with: 
           python-version: "3.13"
-      - run: pip install -r /Flask/requirements.txt /Flask/requirements-dev.txt 
-      - run: pytest
+          cache: pip
+      - run: pip install -r requirements.txt -r requirements-dev.txt 
+      - run: python -m pytest
       
