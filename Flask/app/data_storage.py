@@ -103,7 +103,7 @@ def poll_step(ser):
         # If Arduino has not been found or has been disconnected
         log.warning("Arduino not found: %s", e)
         data_store.update(temperature=None, humidity=None)
-        if ser is None:
+        if ser is not None:
             try:
                 ser.close()
             except Exception:
