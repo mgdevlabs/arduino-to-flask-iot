@@ -116,7 +116,7 @@ def poll_step(ser):
 def read_parameters():
     ser = None
     while(True):
-        ser = poll_once(ser)
+        ser = poll_step(ser)
         time.sleep(RETRY_DELAY)
 
 # function that sets up the thread reading data from arduino
