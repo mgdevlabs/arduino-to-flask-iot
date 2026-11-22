@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+
+# Local environments and tooling
+.venv/
+venv/
+.pytest_cache/
+.idea/
+
+# Local configuration (keep .env.example tracked)
+.env
+
+# Local build artifacts
+*.tar

@@ -14,6 +14,29 @@ And to make things even more interesting, the entire backend is packaged into a 
 This project is currently in its early development stage.
 
 
+# Configuration
+
+Copy `Flask/.env.example` to `Flask/.env` and set the serial port of the Arduino board:
+
+```
+cd Flask
+cp .env.example .env
+```
+
+```
+ARDUINO_PORT=/dev/ttyUSB0
+```
+
+Change it to the port the board is connected to on the host (for example `/dev/ttyACM0`). Docker Compose uses this value both to map the device into the container and to pass it to the application as an environment variable, so no port scanning is performed.
+
+Run the backend with:
+
+```
+cd Flask
+docker compose up --build
+```
+
+
 # Credits
 
 This project uses the **arduino‑DHT** library by Mark Ruys  

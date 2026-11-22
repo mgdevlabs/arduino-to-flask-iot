@@ -1,8 +1,10 @@
 services:
   weather:
     build: .
+    env_file:
+      - .env
     ports:
       - "5000:5000"
     devices:
-      - "/dev/ttyUSB0:/dev/ttyUSB0"
+      - "${ARDUINO_PORT}:${ARDUINO_PORT}"
     restart: unless-stopped

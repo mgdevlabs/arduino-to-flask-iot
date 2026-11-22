@@ -1,14 +1,15 @@
 from threading import Lock
+import os
 import threading
 import time
 import logging
 
 from serial import Serial, SerialException
-from serial.tools import list_ports
 
 # sets up a logger and sets 5 seconds between polls and reconnect attempts
 log = logging.getLogger(__name__)
 RETRY_DELAY = 5
+ARDUINO_PORT_ENV = "ARDUINO_PORT"
 
 # this class holds the information that were collected from arduino
 class DataStorage:
@@ -33,45 +34,20 @@ class DataStorage:
 # creating a shared instance of the class
 data_store = DataStorage()
 
-# This function is used to auto-detect connected arduino boards
-def detect_arduino():
+# Reads the Arduino port configured in the environment (Docker Compose passes
+# it from the .env file), so no port scanning is needed inside the container.
+def get_arduino_port():
+    port = os.environ.get(ARDUINO_PORT_ENV, "").strip()
+    if not port:
+        raise RuntimeError(f"{ARDUINO_PORT_ENV} is not set")
+    return port
 
-    # gets the list of available ports, throws runtime error if none found
-    try:
-        ports = list_ports.comports()
-    except Exception as e:
-        raise RuntimeError(f"No arduino port found: {e}")
-
-    # for every available port load it's data and compare it with given keywords
-    for port in ports:
-        desc = (port.description or "").lower()
-        hwid = (port.hwid or "").lower()
-
-        search_phrase = [
-            "arduino",
-            "ch340",
-            "wchusb",
-            "cdc",
-            "usb serial",
-            "mega",
-            "uno",
-            "nano"
-        ]
-
-        # if the port data matches key word, return it as a connection port
-        for phrase in search_phrase:
-            if (phrase in desc) or (phrase in hwid):
-                return port
-
-    # If no matching port has beed found, throw runtime error
-    raise RuntimeError("No arduino port found")
-
-# connecting Arduino board that has been detected
+# connecting Arduino board on the configured port
 def connect():
-    port = detect_arduino()
-    ser = Serial(port.device, 9600, timeout=1)
+    port = get_arduino_port()
+    ser = Serial(port, 9600, timeout=1)
     time.sleep(2)
-    log.info("Arduino connectd on: %s", port.device)
+    log.info("Arduino connected on: %s", port)
     return ser
 
 # parses line read from Arduino

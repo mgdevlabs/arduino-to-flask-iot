@@ -1,5 +1,4 @@
 import pytest
-from types import SimpleNamespace
 from serial import SerialException
 
 from app import data_storage as ds
@@ -25,28 +24,28 @@ class MockSerial:
     def close(self):
         self.closed = True
 
-def mock_port(device, description="", hwid=""):
-    return SimpleNamespace(device=device, description=description, hwid=hwid)
+# ------------ Arduino port configuration tests --------------------------
 
-# ------------ Arduino detection tests --------------------------
+def test_connect_uses_port_from_env(monkeypatch):
+    opened = []
 
-def test_detect_arduino_port_choice(monkeypatch):
-    ports = [
-        mock_port("COM1", "Some COM port (COM1)"),
-        mock_port("COM3", "Arduino Uno (COM3)")
-    ]
-    monkeypatch.setattr(ds.list_ports, "comports", lambda: ports)
-    assert ds.detect_arduino().device == "COM3"
+    def fake_serial(port, baudrate, timeout):
+        opened.append((port, baudrate, timeout))
+        return MockSerial()
 
-def test_detect_arduino_no_match_error(monkeypatch):
-    ports = [
-        mock_port("COM1", "Some COM port (COM1)"),
-        mock_port("COM3", "Other COM port (COM3)")
-    ]
-    monkeypatch.setattr(ds.list_ports, "comports", lambda: ports)
+    monkeypatch.setenv("ARDUINO_PORT", "/dev/ttyACM0")
+    monkeypatch.setattr(ds, "Serial", fake_serial)
+    monkeypatch.setattr(ds.time, "sleep", lambda _: None)
 
-    with pytest.raises(RuntimeError):
-        ds.detect_arduino()
+    ds.connect()
+
+    assert opened == [("/dev/ttyACM0", 9600, 1)]
+
+def test_connect_without_port_raises(monkeypatch):
+    monkeypatch.delenv("ARDUINO_PORT", raising=False)
+
+    with pytest.raises(RuntimeError, match="ARDUINO_PORT"):
+        ds.connect()
 
 # ------------ parse tests --------------------------------------
 def test_parse_reading_valid():
