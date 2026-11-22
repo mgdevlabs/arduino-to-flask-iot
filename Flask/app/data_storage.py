@@ -6,6 +6,8 @@ import logging
 
 from serial import Serial, SerialException
 
+from app import history
+
 # sets up a logger and sets 5 seconds between polls and reconnect attempts
 log = logging.getLogger(__name__)
 RETRY_DELAY = 5
@@ -67,6 +69,7 @@ def poll_once(ser):
         log.warning("Wrong data format: %r", response)
         return
     data_store.update(temperature=temperature, humidity=humidity)
+    history.record(temperature, humidity)
 
 # one cycle of communication and error handling loop
 def poll_step(ser):

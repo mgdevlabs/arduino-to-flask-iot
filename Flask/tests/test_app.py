@@ -1,5 +1,5 @@
 import pytest
-from app import create_app
+from app import create_app, history
 from app.data_storage import data_store
 
 @pytest.fixture
@@ -22,3 +22,11 @@ def test_weather_endpoint_missing_data(client):
     data_store.update(temperature=11.1)
     response = client.get("/api/weather")
     assert response.get_json() == {"temperature":11.1, "humidity": None}
+
+def test_history_endpoint(client):
+    history.record(23.4, 32.1)
+
+    response = client.get("/api/history")
+
+    assert response.status_code == 200
+    assert response.get_json()[0]["temperature"] == 23.4

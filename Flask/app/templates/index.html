@@ -1,14 +1,28 @@
 {% extends 'base.html' %}
 
 {% block header %}
-    <h1>{% block title %} Indoor conditions {% endblock %}</h1>
+    <h1><span class="prompt">&gt;_</span>{% block title %} Indoor conditions {% endblock %}<span class="cursor">▌</span></h1>
 {% endblock %}
 
 {% block content %}
 <div class="readings">
-    <h2> Temperature: <span id="temp"></span> ℃</h2>
-    <h2> Humidity: <span id="humi"></span> %</h2>
+    <h2> Temperature: <span id="temp" class="value"></span> ℃</h2>
+    <h2> Humidity: <span id="humi" class="value"></span> %</h2>
 </div>
 
+<section class="charts">
+    <div class="chart-block">
+        <h3>TEMPERATURE // 24H</h3>
+        <canvas id="temp-chart" class="chart"></canvas>
+        <div class="chart-axis"><span>-24h</span><span>now</span></div>
+    </div>
+    <div class="chart-block">
+        <h3>HUMIDITY // 24H</h3>
+        <canvas id="humi-chart" class="chart"></canvas>
+        <div class="chart-axis"><span>-24h</span><span>now</span></div>
+    </div>
+</section>
+
 <script src="{{ url_for('static', filename='script.js') }}"></script>
+<script src="{{ url_for('static', filename='history.js') }}"></script>
 {% endblock %}

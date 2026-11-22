@@ -13,3 +13,6 @@ venv/
 
 # Local build artifacts
 *.tar
+
+# SQLite history (stored in a Docker volume)
+/Flask/data/

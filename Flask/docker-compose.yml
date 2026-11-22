@@ -7,4 +7,9 @@ services:
       - "5000:5000"
     devices:
       - "${ARDUINO_PORT}:${ARDUINO_PORT}"
+    volumes:
+      - weather-data:/app/data
     restart: unless-stopped
+
+volumes:
+  weather-data:

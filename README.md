@@ -37,6 +37,13 @@ docker compose up --build
 ```
 
 
+# History
+
+Each reading is saved to SQLite. Locally the file is `Flask/data/history.db`; in Docker it lives in the named volume `weather-data` mounted at `/app/data`, so it survives container restarts and rebuilds. Samples older than 24 hours are removed automatically, and `/api/history` returns at most one averaged point per minute from the last 24 hours for the charts.
+
+The database path can be changed with the `HISTORY_DB_PATH` environment variable (for example in `.env`).
+
+
 # Credits
 
 This project uses the **arduino‑DHT** library by Mark Ruys  

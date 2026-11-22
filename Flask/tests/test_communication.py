@@ -64,6 +64,14 @@ def test_poll_once_stores_reading():
     assert ser.written == [b"GET\n"]
     assert ds.data_store.get() == {"temperature": 12.34, "humidity": 56.78}
 
+def test_poll_once_saves_reading_to_history(monkeypatch):
+    saved = []
+    monkeypatch.setattr(ds.history, "record", lambda t, h: saved.append((t, h)))
+
+    ds.poll_once(MockSerial([b"12.34;56.78\r\n"]))
+
+    assert saved == [(12.34, 56.78)]
+
 def test_poll_once_ignores_invalid_line():
     ds.data_store.update(temperature=20.0, humidity=40.0)
     ds.poll_once(MockSerial([b"invalid\r\n"]))

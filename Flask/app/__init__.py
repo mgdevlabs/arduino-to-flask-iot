@@ -1,5 +1,6 @@
 from flask import Flask, jsonify
 
+from app import history
 from app.data_storage import start_comm_thread
 from app.data_storage import data_store
 
@@ -34,6 +35,10 @@ def create_app(test_config=None):
             "temperature": data.get('temperature'),
             "humidity": data.get('humidity')
         })
+
+    @app.route("/api/history")
+    def history_data():
+        return jsonify(history.read_last_24h())
 
 
     return app
