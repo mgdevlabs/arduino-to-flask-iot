@@ -1,12 +1,14 @@
 {% extends 'base.html' %}
 
 {% block header %}
-    <h1>{% block title %} Current weather {% endblock %}</h1>
+    <h1>{% block title %} Indoor conditions {% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
-<h2> Temperature: <span id="temp"></span> ℃</h2>
-<h2> Humidity: <span id="humi"></span> %</h2>
+<div class="readings">
+    <h2> Temperature: <span id="temp"></span> ℃</h2>
+    <h2> Humidity: <span id="humi"></span> %</h2>
+</div>
 
 <script src="{{ url_for('static', filename='script.js') }}"></script>
 {% endblock %}
